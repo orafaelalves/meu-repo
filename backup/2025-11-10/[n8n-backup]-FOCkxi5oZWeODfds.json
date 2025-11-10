@@ -1,0 +1,354 @@
+{
+  "name": "[n8n :: backup]",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "e74d72fe-106f-4244-bc75-e516204d5e3a",
+      "name": "Daily Backup Schedule1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        -512
+      ],
+      "notes": "Executa backup diário automaticamente. Configure horário conforme necessário."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0a89ab5-fd4b-4f92-9537-a35a12291ab7",
+              "name": "url",
+              "value": "https://n8n.fluxxus.app/",
+              "type": "string"
+            },
+            {
+              "id": "07c68150-0212-47e2-806e-b276b419d93d",
+              "name": "key",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhNDE0NGI2OS04ZDZlLTRiNGUtYWUxNC1iZjQ2MmM1YzdkNDIiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzYyNzk5OTAxfQ.XRwskANbZPbiu9pDUjq5C-RK-6vNZXk7Xh8pU0uBF8o",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        16,
+        -240
+      ],
+      "id": "ac882c0a-9cd6-4c56-8d15-e979be03b553",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}api/v1/workflows",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $json.key }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "f8a07113-ab17-4e54-ab15-abf46ce2de18",
+      "name": "List All Workflows1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        304,
+        -240
+      ],
+      "notes": "Obtém lista de todos os workflows da instância n8n via API"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Configurações de backup - PERSONALIZE AQUI\nconst BACKUP_CONFIG = {\n  // Filtros opcionais - deixe vazio para fazer backup de todos\n  includeOnlyTags: [], // Ex: ['production', 'backup'] \n  excludeTags: ['temp', 'test'], // Tags para excluir\n  includeFolders: [], // Ex: ['Production', 'Important'] \n  excludeFolders: ['Archive', 'Temp'], // Pastas para excluir\n  \n  // Configurações do GitHub\n  githubFolder: 'backup', // Pasta no GitHub (mantendo sua estrutura)\n  includeInactive: true, // Incluir workflows inativos\n};\n\n// Processar workflows\nconst workflows = $input.all()[0].json.data || [];\nconst filteredWorkflows = [];\n\nfor (const workflow of workflows) {\n  let shouldInclude = true;\n  \n  // Filtro por tags\n  if (BACKUP_CONFIG.includeOnlyTags.length > 0) {\n    const workflowTags = workflow.tags?.map(t => t.name) || [];\n    shouldInclude = BACKUP_CONFIG.includeOnlyTags.some(tag => workflowTags.includes(tag));\n  }\n  \n  if (BACKUP_CONFIG.excludeTags.length > 0) {\n    const workflowTags = workflow.tags?.map(t => t.name) || [];\n    shouldInclude = shouldInclude && !BACKUP_CONFIG.excludeTags.some(tag => workflowTags.includes(tag));\n  }\n  \n  // Filtro por status ativo\n  if (!BACKUP_CONFIG.includeInactive && !workflow.active) {\n    shouldInclude = false;\n  }\n  \n  if (shouldInclude) {\n    filteredWorkflows.push({\n      id: workflow.id,\n      name: workflow.name,\n      active: workflow.active,\n      tags: workflow.tags || [],\n      createdAt: workflow.createdAt,\n      updatedAt: workflow.updatedAt\n    });\n  }\n}\n\nconsole.log(`🔍 Processando ${workflows.length} workflows, ${filteredWorkflows.length} selecionados para backup`);\n\nreturn filteredWorkflows.map((workflow, index) => ({\n  json: {\n    ...workflow,\n    batchIndex: index,\n    totalWorkflows: filteredWorkflows.length,\n    backupConfig: BACKUP_CONFIG\n  }\n}));"
+      },
+      "id": "bd7fea25-8dc0-45c3-8640-0be940c21a52",
+      "name": "Filter & Process Workflows1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        -240
+      ],
+      "notes": "Filtra workflows por tags, pastas e status. Configure os filtros no código."
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Edit Fields1').item.json.url }}api/v1/workflows/{{ $json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Edit Fields1').item.json.key }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "f6ff349a-0a28-4382-bc61-9e396d59c9f9",
+      "name": "Get Full Workflow Data1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        752,
+        -240
+      ],
+      "notes": "Obtém dados completos de cada workflow incluindo nós e conexões"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Preparar dados do workflow para backup - ESTRUTURA CORRETA N8N\n// Adaptado para sua implementação específica\n\nconst workflowData = $input.item.json; // Dados do workflow da API\nconst metadata = $input.item.json; // Metadados do item atual\n\n// ⚠️ IMPORTANTE: Manter estrutura EXATA do n8n original (SEM WRAPPERS)\nconst backupWorkflow = {\n  // Campos principais do workflow (estrutura n8n nativa)\n  name: workflowData.name,\n  nodes: workflowData.nodes || [],\n  connections: workflowData.connections || {},\n  active: workflowData.active || false,\n  settings: workflowData.settings || {},\n  staticData: workflowData.staticData || {},\n  \n  // Campos de metadados (nível raiz - CRÍTICO)\n  id: workflowData.id,\n  versionId: workflowData.versionId,\n  tags: workflowData.tags || [],\n  triggerCount: workflowData.triggerCount || 0,\n  \n  // Metadados da instância (se existirem)\n  ...(workflowData.meta && { meta: workflowData.meta }),\n  \n  // PinData (dados de teste fixados) - CRÍTICO para funcionamento\n  ...(workflowData.pinData && { pinData: workflowData.pinData }),\n  \n  // Adicionar informações de backup como comentário (não interfere na importação)\n  \"//backupInfo\": {\n    timestamp: new Date().toISOString(),\n    originalId: workflowData.id,\n    backupVersion: \"2.0\",\n    restorable: true,\n    backupSource: \"n8n-github-backup-automation\"\n  }\n};\n\n// Gerar nome de arquivo seguro (preservando caracteres especiais importantes)\nconst safeName = workflowData.name\n  .replace(/[^a-zA-Z0-9\\s\\-_\\[\\]()]/g, '') // Preserva colchetes e parênteses\n  .replace(/\\s+/g, '-')\n  .toLowerCase()\n  .replace(/--+/g, '-'); // Remove hífens duplos\n\nconst timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD\nconst fileName = `${safeName}-${workflowData.id}.json`;\nconst githubPath = `backup/${timestamp}/${fileName}`; // Mantendo sua estrutura de pasta\n\n// Converter para JSON formatado (compatível 100% com n8n)\nconst jsonContent = JSON.stringify(backupWorkflow, null, 2);\n\n// Logs detalhados para debugging\nconsole.log(`📦 Backup compatível N8N: ${workflowData.name}`);\nconsole.log(`📁 Caminho GitHub: ${githubPath}`);\nconsole.log(`🔧 Nós encontrados: ${(workflowData.nodes || []).length}`);\nconsole.log(`📌 PinData preservado: ${workflowData.pinData ? 'Sim' : 'Não'}`);\nconsole.log(`🏷️ Tags: ${(workflowData.tags || []).length}`);\nconsole.log(`🆔 ID original: ${workflowData.id}`);\nconsole.log(`📝 Version ID: ${workflowData.versionId || 'N/A'}`);\n\nreturn {\n  json: {\n    fileName: fileName,\n    githubPath: githubPath,\n    content: jsonContent,\n    workflowName: workflowData.name,\n    workflowId: workflowData.id,\n    isActive: workflowData.active,\n    nodeCount: (workflowData.nodes || []).length,\n    hasCredentials: (workflowData.nodes || []).some(node => node.credentials),\n    hasPinData: !!workflowData.pinData,\n    hasMetadata: !!workflowData.meta,\n    backupTimestamp: timestamp,\n    backupStructure: 'n8n-native' // Indica estrutura correta\n  }\n};"
+      },
+      "id": "e581f997-e475-454f-ad50-e1bc0575091b",
+      "name": "Prepare GitHub Files1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        -240
+      ],
+      "notes": "Formata dados para GitHub com metadados e estrutura de pastas organizadas - ESTRUTURA N8N CORRIGIDA"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "orafaelalves",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "flouume-workflows",
+          "mode": "name"
+        },
+        "filePath": "={{ $json.githubPath }}",
+        "fileContent": "={{ $json.content }}",
+        "commitMessage": "=🔄 Backup workflow: {{ $json.workflowName }} ({{ $json.workflowId }}) - {{ $json.backupTimestamp }}"
+      },
+      "id": "94ce64d4-d68c-41ae-a392-5894bd5b8fbd",
+      "name": "💾 Save to GitHub1",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1184,
+        -240
+      ],
+      "webhookId": "10ea267c-8eda-4618-9a7c-3aecab6459d0",
+      "credentials": {
+        "githubApi": {
+          "id": "FQIq7hmgGOGEwo8L",
+          "name": "GitHub account"
+        }
+      },
+      "notes": "Salva workflows no GitHub com commit automático"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gerar relatório de backup\nconst items = $input.all();\nconst successful = [];\nconst failed = [];\n\nfor (const item of items) {\n  if (item.json.error) {\n    failed.push({\n      name: item.json.content.nmw || 'Unknown',\n      error: item.json.error\n    });\n  } else {\n    successful.push({\n      name: item.json.content.name,\n      url: item.json.content.git_url,\n      path: item.json.content.path,\n    });\n  }\n}\n\nconst report = {\n  timestamp: new Date().toISOString(),\n  summary: {\n    total: items.length,\n    successful: successful.length,\n    failed: failed.length,\n    successRate: `${((successful.length / items.length) * 100).toFixed(1)}%`,\n    withPinData: successful.filter(s => s.hasPinData).length,\n    withCredentials: successful.filter(s => s.hasCredentials).length\n  },\n  successful: successful,\n  failed: failed,\n  repositoryInfo: {\n    owner: 'orafaelalves', // Seu usuário GitHub\n    repo: 'flouume-workflows', // Seu repositório\n    folder: 'backup', // Sua pasta\n    backupStructure: 'n8n-native-corrected'\n  }\n};\n\nconsole.log('📊 RELATÓRIO DE BACKUP CORRIGIDO:');\nconsole.log(`✅ Sucessos: ${successful.length}`);\nconsole.log(`❌ Falhas: ${failed.length}`);\nconsole.log(`📈 Taxa de sucesso: ${report.summary.successRate}`);\nconsole.log(`📌 Com PinData: ${report.summary.withPinData}`);\nconsole.log(`🔐 Com Credenciais: ${report.summary.withCredentials}`);\n\nif (failed.length > 0) {\n  console.log('\\n❌ Workflows com falha:');\n  failed.forEach(f => console.log(`  - ${f.name} (${f.id}): ${f.error}`));\n}\n\nreturn [{ json: report }];"
+      },
+      "id": "af8b0eb2-3bd4-428f-8322-caba3983db5b",
+      "name": "📊 Generate Report1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1408,
+        -240
+      ],
+      "notes": "Gera relatório detalhado do backup com estatísticas - INCLUINDO INFO DE ESTRUTURA CORRIGIDA"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "mode": "name",
+          "value": "orafaelalves"
+        },
+        "repository": {
+          "__rl": true,
+          "mode": "name",
+          "value": "flouume-workflows"
+        },
+        "filePath": "=backup/{{ $json.timestamp }}/backup-report.json ",
+        "fileContent": "={{ JSON.stringify($json, null, 2) }}",
+        "commitMessage": "📊 Relatório de backup - {{ $json.summary.total }} workflows ({{ $json.summary.successRate }} sucesso) - ESTRUTURA N8N CORRIGIDA"
+      },
+      "id": "653f4cbf-a9f2-4edd-a7e3-18016560a8a0",
+      "name": "💾 Save Report to GitHub1",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1632,
+        -240
+      ],
+      "webhookId": "a4a9facc-5ae9-48e2-9669-68f4e03200d9",
+      "credentials": {
+        "githubApi": {
+          "id": "FQIq7hmgGOGEwo8L",
+          "name": "GitHub account"
+        }
+      },
+      "notes": "Salva relatório de backup no GitHub para auditoria"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        -224
+      ],
+      "id": "e11ff981-3ab4-4d39-a28e-d01c105cd51a",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "connections": {
+    "Daily Backup Schedule1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "List All Workflows1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List All Workflows1": {
+      "main": [
+        [
+          {
+            "node": "Filter & Process Workflows1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter & Process Workflows1": {
+      "main": [
+        [
+          {
+            "node": "Get Full Workflow Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Full Workflow Data1": {
+      "main": [
+        [
+          {
+            "node": "Prepare GitHub Files1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare GitHub Files1": {
+      "main": [
+        [
+          {
+            "node": "💾 Save to GitHub1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "💾 Save to GitHub1": {
+      "main": [
+        [
+          {
+            "node": "📊 Generate Report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Generate Report1": {
+      "main": [
+        [
+          {
+            "node": "💾 Save Report to GitHub1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "id": "FOCkxi5oZWeODfds",
+  "versionId": "7a6527f3-630a-45e3-b895-c278dea7b3e9",
+  "tags": [],
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "//backupInfo": {
+    "timestamp": "2025-11-10T18:43:50.536Z",
+    "originalId": "FOCkxi5oZWeODfds",
+    "backupVersion": "2.0",
+    "restorable": true,
+    "backupSource": "n8n-github-backup-automation"
+  }
+}
