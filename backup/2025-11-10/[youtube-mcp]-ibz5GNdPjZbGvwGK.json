@@ -1,0 +1,22 @@
+{
+  "name": "[youtube :: mcp]",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "id": "ibz5GNdPjZbGvwGK",
+  "versionId": "a3f43dae-6598-4c9a-aab7-5a8f5a6017c7",
+  "tags": [],
+  "triggerCount": 0,
+  "pinData": {},
+  "//backupInfo": {
+    "timestamp": "2025-11-10T18:43:50.502Z",
+    "originalId": "ibz5GNdPjZbGvwGK",
+    "backupVersion": "2.0",
+    "restorable": true,
+    "backupSource": "n8n-github-backup-automation"
+  }
+}
