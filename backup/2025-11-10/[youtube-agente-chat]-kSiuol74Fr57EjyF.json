@@ -1,0 +1,22 @@
+{
+  "name": "[youtube :: agente-chat]",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "id": "kSiuol74Fr57EjyF",
+  "versionId": "35ce4eb5-4994-4a59-a5d0-73ec21ab7e93",
+  "tags": [],
+  "triggerCount": 0,
+  "pinData": {},
+  "//backupInfo": {
+    "timestamp": "2025-11-10T18:43:50.501Z",
+    "originalId": "kSiuol74Fr57EjyF",
+    "backupVersion": "2.0",
+    "restorable": true,
+    "backupSource": "n8n-github-backup-automation"
+  }
+}
