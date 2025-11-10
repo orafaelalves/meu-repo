@@ -1,0 +1,99 @@
+{
+  "name": "[caa.plus :: grid-generator]",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "caaplus/grid/generator",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "06b066fe-2105-47f2-a52d-5c37711aae40",
+      "name": "Webhook",
+      "webhookId": "0488d517-4801-46c9-b4df-eaaa395a64bd",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Mh1eY6sCiIqKUGX9",
+          "name": "caaplus :: credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "72554778-e64d-4e4c-a45a-fa824cf7cf83",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "25d7a432-5c2b-45df-a13b-9855aa7c1772",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "id": "BEAdv37JYQvzMqfn",
+  "versionId": "a497152b-bfe2-4b12-b493-e66323b760c9",
+  "tags": [],
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "//backupInfo": {
+    "timestamp": "2025-11-10T18:43:50.512Z",
+    "originalId": "BEAdv37JYQvzMqfn",
+    "backupVersion": "2.0",
+    "restorable": true,
+    "backupSource": "n8n-github-backup-automation"
+  }
+}
