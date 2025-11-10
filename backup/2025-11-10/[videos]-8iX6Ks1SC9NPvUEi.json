@@ -1,0 +1,121 @@
+{
+  "name": "[videos]",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Foto",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "imagem",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b9da6389-2989-44e9-a1ef-def227372e00",
+      "name": "On form submission",
+      "webhookId": "c82ba9ca-8ba5-49aa-9b5f-45f196e6855a"
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "dataPropertyName": "imagem",
+        "width": 720,
+        "height": 1280,
+        "resizeOption": "ignoreAspectRatio",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a3f7c25f-d5cd-4cfa-a411-9af7412224a3",
+      "name": "Edit Image"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "modelId": {
+          "__rl": true,
+          "value": "sora-2",
+          "mode": "list",
+          "cachedResultName": "SORA-2"
+        },
+        "prompt": "A high-definition (4K), cinematic, and softly lit documentary-style video featuring a heartwarming Augmentative and Alternative Communication (AAC) therapy session. The scene unfolds in a brightly lit and inviting therapy room, where natural light gently streams through a window, creating a serene and calm atmosphere. A gentle and professional female therapist, approximately 30 years old, is seated comfortably across from a focused, non-verbal autistic child, aged between 5 and 7 years old. The child is actively engaged with a tablet displaying a vibrant AAC app, featuring large, colorful picture icons (pictograms). The therapist gracefully points with her index finger to a sequence of icons on the tablet that collectively form the phrase: 'I want to play.' She then meticulously models the action, deliberately touching each icon in the phrase on the tablet. As each icon is touched, the tablet emits a clear, synthesized voice corresponding to the picture (e.g., tablet voice: 'I' click 'want' click 'to play' click). The child, with an intense and silent focus, watches the therapist's hand intently. Without uttering a single verbal sound, the child then extends their own small hand to meticulously mimic the action, successfully touching the same sequence of icons on the tablet. The camera work is dynamic and intimate, utilizing a shallow depth of field and warm colors. It subtly moves, first capturing a close-up of the therapist's gentle face, then transitioning to the vibrant tablet screen as the icons are touched, and finally settling on a powerful close-up of the child's small hands interacting with the tablet, emphasizing their communication breakthrough.",
+        "seconds": 12,
+        "size": "720x1280",
+        "options": {
+          "binaryPropertyNameReference": "imagem"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "da876402-fe9a-4c45-8350-895ef56f539e",
+      "name": "Generate a video",
+      "credentials": {
+        "openAiApi": {
+          "id": "7URSOWLI2cCdHd6V",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Image": {
+      "main": [
+        [
+          {
+            "node": "Generate a video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "id": "8iX6Ks1SC9NPvUEi",
+  "versionId": "cb8907d2-47c1-49fc-a893-71f397d90874",
+  "tags": [],
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "//backupInfo": {
+    "timestamp": "2025-11-10T18:43:50.531Z",
+    "originalId": "8iX6Ks1SC9NPvUEi",
+    "backupVersion": "2.0",
+    "restorable": true,
+    "backupSource": "n8n-github-backup-automation"
+  }
+}
