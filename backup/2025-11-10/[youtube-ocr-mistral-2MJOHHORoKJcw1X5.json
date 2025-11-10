@@ -1,0 +1,22 @@
+{
+  "name": "[youtube :: ocr-mistral",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "id": "2MJOHHORoKJcw1X5",
+  "versionId": "c2590003-1345-4676-be36-8111a38ccb7f",
+  "tags": [],
+  "triggerCount": 0,
+  "pinData": {},
+  "//backupInfo": {
+    "timestamp": "2025-11-10T18:43:50.505Z",
+    "originalId": "2MJOHHORoKJcw1X5",
+    "backupVersion": "2.0",
+    "restorable": true,
+    "backupSource": "n8n-github-backup-automation"
+  }
+}
