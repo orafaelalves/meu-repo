@@ -1,0 +1,22 @@
+{
+  "name": "[youtube :: ocr-llamaIndex]",
+  "nodes": [],
+  "connections": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": {},
+  "id": "b6rE2QMjQmGIJA6K",
+  "versionId": "276cc742-c6a6-4726-b94f-4fb60c81defe",
+  "tags": [],
+  "triggerCount": 0,
+  "pinData": {},
+  "//backupInfo": {
+    "timestamp": "2025-11-10T18:43:50.507Z",
+    "originalId": "b6rE2QMjQmGIJA6K",
+    "backupVersion": "2.0",
+    "restorable": true,
+    "backupSource": "n8n-github-backup-automation"
+  }
+}
